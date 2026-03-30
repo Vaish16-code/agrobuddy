@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const farmerProductRoutes = require('./routes/farmerProductRoutes');
 const traderProductRoutes = require('./routes/traderProductRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const recommendationRoutes = require('./routes/recommendationRoutes');
 
 // Initialize express app
 const app = express();
@@ -29,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/farmer-products', farmerProductRoutes);
 app.use('/api/trader-products', traderProductRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

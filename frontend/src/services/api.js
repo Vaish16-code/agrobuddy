@@ -4,7 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 // Change this to your backend URL
 // For local development with Expo, use your machine's IP address
 // Example: 'http://192.168.1.100:5000/api'
-const API_BASE_URL = 'http://192.168.29.127:5000/api';
+const API_BASE_URL = 'http://10.45.198.56:5000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

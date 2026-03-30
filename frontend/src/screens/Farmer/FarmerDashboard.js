@@ -129,6 +129,16 @@ const FarmerDashboard = ({ navigation }) => {
           <Text style={styles.actionButtonText}>Add Product</Text>
         </TouchableOpacity>
         <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: '#9C27B0' }]}
+          onPress={() => navigation.navigate('FindBuyers')}
+        >
+          <Text style={styles.actionButtonIcon}>🔍</Text>
+          <Text style={styles.actionButtonText}>Find Buyers</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.actionButtons}>
+        <TouchableOpacity
           style={[styles.actionButton, { backgroundColor: '#FF8F00' }]}
           onPress={() => navigation.navigate('ViewTraderProducts')}
         >

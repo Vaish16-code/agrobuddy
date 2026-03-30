@@ -12,6 +12,7 @@ import FarmerDashboard from '../screens/Farmer/FarmerDashboard';
 import AddFarmerProduct from '../screens/Farmer/AddFarmerProduct';
 import ViewTraderProducts from '../screens/Farmer/ViewTraderProducts';
 import FarmerProductDetails from '../screens/Farmer/FarmerProductDetails';
+import FindBuyersScreen from '../screens/Farmer/FindBuyersScreen';
 
 // Trader Screens
 import TraderDashboard from '../screens/Trader/TraderDashboard';
@@ -84,6 +85,11 @@ const FarmerStack = () => (
       name="OrderHistory" 
       component={OrderHistory}
       options={{ title: 'My Orders' }}
+    />
+    <Stack.Screen 
+      name="FindBuyers" 
+      component={FindBuyersScreen}
+      options={{ title: 'Find Buyers', headerShown: false }}
     />
   </Stack.Navigator>
 );

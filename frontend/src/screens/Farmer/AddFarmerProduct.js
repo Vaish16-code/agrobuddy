@@ -22,22 +22,74 @@ const AddFarmerProduct = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
-    if (status !== 'granted') {
-      Alert.alert('Permission Required', 'Please grant camera roll permissions');
-      return;
+    try {
+      // Request permissions
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please grant camera roll permissions to add product photos');
+        return;
+      }
+
+      // Show action sheet for image source
+      Alert.alert(
+        'Select Image',
+        'Choose an option',
+        [
+          { text: 'Camera', onPress: () => openCamera() },
+          { text: 'Gallery', onPress: () => openGallery() },
+          { text: 'Cancel', style: 'cancel' }
+        ]
+      );
+    } catch (error) {
+      console.log('Image picker permission error:', error);
+      Alert.alert('Error', 'Failed to open image picker');
     }
+  };
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
-    });
+  const openCamera = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please grant camera permissions');
+        return;
+      }
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaType.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setImage(result.assets[0].uri);
+        console.log('Camera image selected:', result.assets[0].uri);
+      }
+    } catch (error) {
+      console.log('Camera error:', error);
+      Alert.alert('Error', 'Failed to take photo');
+    }
+  };
+
+  const openGallery = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaType.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+        exif: false,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setImage(result.assets[0].uri);
+        console.log('Gallery image selected:', result.assets[0].uri);
+      }
+    } catch (error) {
+      console.log('Gallery error:', error);
+      Alert.alert('Error', 'Failed to select image from gallery');
     }
   };
 
@@ -57,26 +109,37 @@ const AddFarmerProduct = ({ navigation }) => {
       formData.append('quantity', quantity);
 
       if (image) {
+        console.log('Adding image to formData:', image);
         const filename = image.split('/').pop();
         const match = /\.(\w+)$/.exec(filename);
         const type = match ? `image/${match[1]}` : 'image/jpeg';
-        formData.append('image', {
+        
+        // For React Native, we need to create a proper file object
+        const imageFile = {
           uri: image,
-          name: filename,
-          type,
-        });
+          name: filename || 'product_image.jpg',
+          type: type,
+        };
+        
+        formData.append('image', imageFile);
+        console.log('Image added to formData:', imageFile);
       }
 
+      console.log('Submitting product data...');
       const response = await farmerProductsAPI.add(formData);
 
       if (response.data.success) {
         Alert.alert('Success', 'Product added successfully', [
           { text: 'OK', onPress: () => navigation.goBack() }
         ]);
+      } else {
+        console.log('API Error:', response.data);
+        Alert.alert('Error', response.data.message || 'Failed to add product');
       }
     } catch (error) {
       console.log('Error adding product:', error);
-      Alert.alert('Error', 'Failed to add product');
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to add product';
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -86,11 +149,20 @@ const AddFarmerProduct = ({ navigation }) => {
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <TouchableOpacity style={styles.imageContainer} onPress={pickImage}>
         {image ? (
-          <Image source={{ uri: image }} style={styles.image} />
+          <View style={styles.imageWrapper}>
+            <Image source={{ uri: image }} style={styles.image} />
+            <TouchableOpacity 
+              style={styles.removeImageButton} 
+              onPress={() => setImage(null)}
+            >
+              <Text style={styles.removeImageText}>✕</Text>
+            </TouchableOpacity>
+          </View>
         ) : (
           <View style={styles.imagePlaceholder}>
             <Text style={styles.imageIcon}>📷</Text>
             <Text style={styles.imageText}>Tap to add image</Text>
+            <Text style={styles.imageSubText}>Camera or Gallery</Text>
           </View>
         )}
       </TouchableOpacity>
@@ -178,6 +250,25 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 12,
   },
+  imageWrapper: {
+    position: 'relative',
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removeImageText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   imagePlaceholder: {
     width: '100%',
     height: 200,
@@ -197,6 +288,12 @@ const styles = StyleSheet.create({
     color: '#2E7D32',
     fontSize: 16,
     fontWeight: '600',
+  },
+  imageSubText: {
+    color: '#2E7D32',
+    fontSize: 12,
+    marginTop: 4,
+    opacity: 0.7,
   },
   formGroup: {
     marginBottom: 16,

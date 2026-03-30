@@ -49,12 +49,22 @@ const UserDashboard = ({ navigation }) => {
       </View>
 
       <View style={styles.actionButtons}>
+        {/* 🌟 Fresh Picks — recommendation button */}
+        <TouchableOpacity
+          style={[styles.mainButton, { backgroundColor: '#E65100' }]}
+          onPress={() => navigation.navigate('FreshPicks')}
+        >
+          <Text style={styles.buttonIcon}>🌟</Text>
+          <Text style={styles.buttonTitle}>Fresh Picks</Text>
+          <Text style={styles.buttonSubtitle}>Best quality · Scored by freshness</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={[styles.mainButton, { backgroundColor: '#2E7D32' }]}
           onPress={() => navigation.navigate('ProductList', { source: 'farmer' })}
         >
           <Text style={styles.buttonIcon}>🌾</Text>
-          <Text style={styles.buttonTitle}>Browse Farmer Products</Text>
+          <Text style={styles.buttonTitle}>Browse All Products</Text>
           <Text style={styles.buttonSubtitle}>Fresh from the farm</Text>
         </TouchableOpacity>
 
@@ -68,6 +78,7 @@ const UserDashboard = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Categories</Text>
         <View style={styles.categoriesContainer}>
@@ -75,7 +86,10 @@ const UserDashboard = ({ navigation }) => {
             <TouchableOpacity
               key={cat.id}
               style={styles.categoryCard}
-              onPress={() => navigation.navigate('ProductList', { source: cat.source })}
+              onPress={() => navigation.navigate('ProductList', {
+                source: cat.source,
+                category: cat.name,   // ← passes category name for filtering
+              })}
             >
               <Text style={styles.categoryIcon}>{cat.icon}</Text>
               <Text style={styles.categoryName}>{cat.name}</Text>
